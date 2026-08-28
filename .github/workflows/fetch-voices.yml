@@ -1,0 +1,42 @@
+name: Fetch Sherpa-ONNX Voices
+
+on:
+  workflow_dispatch:
+
+jobs:
+  download-and-upload:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download and Extract Voice Archives
+        run: |
+          mkdir -p output/espeak-ng-data
+          cd output
+
+          # Download archives
+          curl -LO https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/vits-piper-en_GB-cori-high.tar.bz2
+          curl -LO https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/vits-piper-es_AR-daniela-high.tar.bz2
+          curl -LO https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/espeak-ng-data.tar.bz2
+
+          # Extract archives
+          tar -xjvf vits-piper-en_GB-cori-high.tar.bz2
+          tar -xjvf vits-piper-es_AR-daniela-high.tar.bz2
+          tar -xjvf espeak-ng-data.tar.bz2
+
+          # Remove compressed source archives to keep upload clean
+          rm *.tar.bz2
+
+          # Compress espeak-ng-data directory into a standard zip for release release assets
+          zip -r espeak-ng-data.zip espeak-ng-data
+
+      - name: Upload Files to Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v1.0
+          files: |
+            output/vits-piper-en_GB-cori-high/*
+            output/vits-piper-es_AR-daniela-high/*
+            output/espeak-ng-data.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+
