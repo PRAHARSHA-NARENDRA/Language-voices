@@ -12,23 +12,22 @@ jobs:
     steps:
       - name: Download and Extract Voice Archives
         run: |
-          mkdir -p output/espeak-ng-data
-          cd output
+          mkdir -p work
+          cd work
 
           # Download archives
           curl -LO https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/vits-piper-en_GB-cori-high.tar.bz2
           curl -LO https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/vits-piper-es_AR-daniela-high.tar.bz2
           curl -LO https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/espeak-ng-data.tar.bz2
 
-          # Extract archives
+          # Extract each archive into its extracted folder structure
           tar -xjvf vits-piper-en_GB-cori-high.tar.bz2
           tar -xjvf vits-piper-es_AR-daniela-high.tar.bz2
           tar -xjvf espeak-ng-data.tar.bz2
 
-          # Remove compressed source archives to keep upload clean
-          rm *.tar.bz2
-
-          # Compress espeak-ng-data directory into a standard zip for release assets
+          # Compress each folder into its own zip file to preserve tokens.txt inside each model directory
+          zip -r en_GB-cori-high.zip vits-piper-en_GB-cori-high
+          zip -r es_AR-daniela-high.zip vits-piper-es_AR-daniela-high
           zip -r espeak-ng-data.zip espeak-ng-data
 
       - name: Upload Files to Release
@@ -36,8 +35,8 @@ jobs:
         with:
           tag_name: v1.0
           files: |
-            output/vits-piper-en_GB-cori-high/*
-            output/vits-piper-es_AR-daniela-high/*
-            output/espeak-ng-data.zip
+            work/en_GB-cori-high.zip
+            work/es_AR-daniela-high.zip
+            work/espeak-ng-data.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
