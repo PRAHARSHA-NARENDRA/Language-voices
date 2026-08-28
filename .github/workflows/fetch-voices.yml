@@ -3,6 +3,9 @@ name: Fetch Sherpa-ONNX Voices
 on:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   download-and-upload:
     runs-on: ubuntu-latest
@@ -25,11 +28,11 @@ jobs:
           # Remove compressed source archives to keep upload clean
           rm *.tar.bz2
 
-          # Compress espeak-ng-data directory into a standard zip for release release assets
+          # Compress espeak-ng-data directory into a standard zip for release assets
           zip -r espeak-ng-data.zip espeak-ng-data
 
       - name: Upload Files to Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: v1.0
           files: |
@@ -38,5 +41,3 @@ jobs:
             output/espeak-ng-data.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-
